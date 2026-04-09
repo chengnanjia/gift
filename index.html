@@ -491,55 +491,6 @@
             padding: 20px;
         }
         
-        /* 图表容器 */
-        .chart-container {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .chart-title {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-        
-        .chart-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-        }
-        
-        .chart-item {
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .chart-item h4 {
-            color: #555;
-            margin-bottom: 10px;
-            font-size: 1em;
-        }
-        
-        .chart-item canvas {
-            max-width: 100%;
-            height: 200px;
-        }
-        
-        @media (max-width: 768px) {
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .chart-item canvas {
-                height: 180px;
-            }
-        }
-        
         /* 加载动画 */
         .loading-overlay {
             position: fixed;
@@ -775,21 +726,6 @@
             </div>
         </div>
         
-        <!-- 统计分析图表 -->
-        <div class="chart-container">
-            <h3 class="chart-title">数据分析</h3>
-            <div class="chart-grid">
-                <div class="chart-item">
-                    <h4>礼金分布</h4>
-                    <canvas id="amountDistributionChart"></canvas>
-                </div>
-                <div class="chart-item">
-                    <h4>礼金趋势</h4>
-                    <canvas id="amountTrendChart"></canvas>
-                </div>
-            </div>
-        </div>
-        
         <!-- 添加/编辑表单 -->
         <div class="form-container">
             <h2 class="form-title" id="formTitle">添加礼金记录</h2>
@@ -916,8 +852,6 @@
     <script src="config.js"></script>
     <!-- SheetJS库用于Excel导出 -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Chart.js库用于数据可视化 -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
     
     <script>
         // 全局变量
@@ -1201,180 +1135,9 @@
             document.getElementById('totalGuests').textContent = totalGuests;
             document.getElementById('totalAmount').textContent = formatAmount(totalAmount);
             document.getElementById('averageAmount').textContent = formatAmount(averageAmount);
-            
-            // 更新图表
-            updateCharts(dataToUse);
         }
         
-        // 全局图表实例
-        let amountDistributionChart = null;
-        let amountTrendChart = null;
-        
-        // 更新图表
-        function updateCharts(data) {
-            updateAmountDistributionChart(data);
-            updateAmountTrendChart(data);
-        }
-        
-        // 更新礼金分布图表
-        function updateAmountDistributionChart(data) {
-            const ctx = document.getElementById('amountDistributionChart').getContext('2d');
-            
-            // 礼金金额区间分布
-            const ranges = [
-                { min: 0, max: 100, label: '0-100元' },
-                { min: 100, max: 500, label: '100-500元' },
-                { min: 500, max: 1000, label: '500-1000元' },
-                { min: 1000, max: 5000, label: '1000-5000元' },
-                { min: 5000, max: Infinity, label: '5000元以上' }
-            ];
-            
-            const distribution = ranges.map(range => {
-                const count = data.filter(gift => {
-                    const amount = parseFloat(gift.amount);
-                    return amount >= range.min && amount < range.max;
-                }).length;
-                return count;
-            });
-            
-            const labels = ranges.map(range => range.label);
-            
-            // 销毁旧图表
-            if (amountDistributionChart) {
-                amountDistributionChart.destroy();
-            }
-            
-            // 创建新图表
-            amountDistributionChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '宾客数量',
-                        data: distribution,
-                        backgroundColor: 'rgba(200, 16, 46, 0.7)',
-                        borderColor: 'rgba(200, 16, 46, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0,
-                                font: {
-                                    size: 10
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: {
-                                    size: 10
-                                }
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // 更新礼金趋势图表
-        function updateAmountTrendChart(data) {
-            const ctx = document.getElementById('amountTrendChart').getContext('2d');
-            
-            // 按日期分组数据
-            const dateGroups = {};
-            data.forEach(gift => {
-                const date = gift.recordTime.split(' ')[0];
-                if (!dateGroups[date]) {
-                    dateGroups[date] = 0;
-                }
-                dateGroups[date] += parseFloat(gift.amount);
-            });
-            
-            // 转换为数组并排序
-            const sortedDates = Object.keys(dateGroups).sort();
-            const amounts = sortedDates.map(date => dateGroups[date]);
-            
-            // 销毁旧图表
-            if (amountTrendChart) {
-                amountTrendChart.destroy();
-            }
-            
-            // 创建新图表
-            amountTrendChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: sortedDates,
-                    datasets: [{
-                        label: '礼金总额(元)',
-                        data: amounts,
-                        borderColor: 'rgba(200, 16, 46, 1)',
-                        backgroundColor: 'rgba(200, 16, 46, 0.1)',
-                        borderWidth: 1.5,
-                        tension: 0.1,
-                        fill: true,
-                        pointRadius: 2,
-                        pointHoverRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                font: {
-                                    size: 10
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: {
-                                    size: 10
-                                }
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
+
         
         // 检查是否正在筛选
         function isFiltering() {

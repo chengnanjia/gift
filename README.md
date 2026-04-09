@@ -25,13 +25,13 @@
 - ✅ 金额格式化（千分位分隔符+货币符号）
 - ✅ 用户认证/登录功能
 - ✅ 自定义主题/颜色方案
-- ✅ 统计分析和数据可视化图表
+
 - ✅ 性能优化（数据缓存、DOM操作优化）
 
 ## 技术栈
 
 - **前端**: HTML5, CSS3, JavaScript (原生)
-- **第三方库**: SheetJS (Excel导出), Chart.js (数据可视化)
+- **第三方库**: SheetJS (Excel导出)
 - **后端**: Node.js, Express
 - **数据存储**: JSON文件
 - **部署**: 支持GitHub Pages + Heroku/Railway
