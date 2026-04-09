@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宴席礼金记录簿</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #c8102e;
+            --secondary-color: #e83e3e;
+            --background-color: #f5f2e9;
+            --text-color: #333;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-info span {
+            font-size: 1em;
+            color: #555;
+        }
+        
+        .theme-selector {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            background-color: #fff;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .theme-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .theme-btn.active {
+            border: 2px solid var(--primary-color);
+            transform: scale(1.1);
+        }
+        
+        .btn-logout {
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 1em;
+            color: #666;
+        }
+        
+        .form-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-title {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-hint {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.85em;
+            color: #888;
+        }
+        
+        .error-message {
+            color: #f44336;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        input.error, textarea.error {
+            border-color: #f44336 !important;
+            box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.1) !important;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(200, 16, 46, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(200, 16, 46, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .table-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+            color: var(--primary-color);
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        
+        th:hover {
+            background-color: #e8e8e8;
+        }
+        
+        th.sortable::after {
+            content: ' ↕';
+            font-size: 0.8em;
+            color: #999;
+        }
+        
+        th.sort-asc::after {
+            content: ' ↑';
+            font-size: 0.8em;
+            color: var(--primary-color);
+        }
+        
+        th.sort-desc::after {
+            content: ' ↓';
+            font-size: 0.8em;
+            color: var(--primary-color);
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-edit {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .btn-edit:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .btn-delete:hover {
+            background-color: #da190b;
+        }
+        
+        .export-btn {
+            margin-top: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .export-btn button {
+            flex: 1;
+            max-width: 200px;
+        }
+        
+        .filter-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .filter-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .filter-group label {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .filter-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .filter-buttons button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 10px;
+        }
+        
+        .btn-page {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        
+        .btn-page:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-page:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            font-size: 0.9em;
+            color: #666;
+            padding: 0 10px;
+        }
+        
+        .backup-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .backup-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .backup-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .backup-actions button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+        
+        .backup-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .backup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .backup-item:last-child {
+            border-bottom: none;
+        }
+        
+        .backup-info {
+            flex: 1;
+        }
+        
+        .backup-filename {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .backup-date {
+            font-size: 0.85em;
+            color: #888;
+        }
+        
+        .backup-size {
+            font-size: 0.85em;
+            color: #666;
+            margin-left: 10px;
+        }
+        
+        .backup-actions-item {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .backup-actions-item button {
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+        
+        .backup-empty {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .chart-item {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .chart-item h4 {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        .chart-item canvas {
+            max-width: 100%;
+            height: 200px;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-item canvas {
+                height: 180px;
+            }
+        }
+        
+        /* 加载动画 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: white;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+        
+        .loading-container {
+            text-align: center;
+        }
+        
+        /* Toast提示 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast {
+            padding: 12px 20px;
+            border-radius: 5px;
+            color: white;
+            font-size: 0.9em;
+            min-width: 200px;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.success {
+            background-color: #4CAF50;
+        }
+        
+        .toast.error {
+            background-color: #f44336;
+        }
+        
+        .toast.info {
+            background-color: #2196F3;
+        }
+        
+        .toast.warning {
+            background-color: #ff9800;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .toast.hiding {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stat-value {
+                font-size: 1.5em;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .filter-buttons {
+                flex-direction: row;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+            
+            .btn-edit, .btn-delete {
+                padding: 3px 6px;
+                font-size: 0.8em;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .btn-page {
+                padding: 6px 10px;
+                font-size: 0.8em;
+            }
+            
+            .page-info {
+                width: 100%;
+                text-align: center;
+                order: -1;
+                margin-bottom: 10px;
+            }
+            
+            .backup-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .backup-actions-item {
+                width: 100%;
+            }
+            
+            .backup-actions-item button {
+                width: 100%;
+            }
+            
+            .toast-container {
+                left: 10px;
+                right: 10px;
+                top: 10px;
+            }
+            
+            .toast {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>宴席礼金记录簿</h1>
+            <div class="user-info" id="userInfo"></div>
+        </div>
+        
+        <!-- 数据统计 -->
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalGuests">0</div>
+                <div class="stat-label">总宾客数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalAmount">0</div>
+                <div class="stat-label">礼金总额(元)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="averageAmount">0.00</div>
+                <div class="stat-label">平均礼金(元)</div>
+            </div>
+        </div>
+        
+        <!-- 统计分析图表 -->
+        <div class="chart-container">
+            <h3 class="chart-title">数据分析</h3>
+            <div class="chart-grid">
+                <div class="chart-item">
+                    <h4>礼金分布</h4>
+                    <canvas id="amountDistributionChart"></canvas>
+                </div>
+                <div class="chart-item">
+                    <h4>礼金趋势</h4>
+                    <canvas id="amountTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 添加/编辑表单 -->
+        <div class="form-container">
+            <h2 class="form-title" id="formTitle">添加礼金记录</h2>
+            <form id="giftForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label for="name">宾客姓名 *</label>
+                    <input type="text" id="name" required maxlength="50" placeholder="请输入宾客姓名（最多50个字符）">
+                    <small class="form-hint">最多50个字符</small>
+                    <div class="error-message" id="nameError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="amount">礼金金额(元) *</label>
+                    <input type="number" id="amount" step="0.01" min="0" max="999999.99" required placeholder="请输入礼金金额">
+                    <small class="form-hint">金额范围：0 - 999,999.99元</small>
+                    <div class="error-message" id="amountError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="blessing">祝福语</label>
+                    <textarea id="blessing"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recordTime">记录时间</label>
+                    <input type="text" id="recordTime" readonly>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="submitBtn">新增</button>
+                    <button type="button" class="btn-secondary" id="cancelBtn" style="display: none;">取消</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 搜索和筛选 -->
+        <div class="filter-container">
+            <h3 class="filter-title">搜索和筛选</h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="searchName">宾客姓名</label>
+                    <input type="text" id="searchName" placeholder="输入姓名搜索">
+                </div>
+                <div class="filter-group">
+                    <label for="minAmount">最小金额</label>
+                    <input type="number" id="minAmount" step="0.01" min="0" placeholder="最小金额">
+                </div>
+                <div class="filter-group">
+                    <label for="maxAmount">最大金额</label>
+                    <input type="number" id="maxAmount" step="0.01" min="0" placeholder="最大金额">
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="startDate">开始日期</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="filter-group">
+                    <label for="endDate">结束日期</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="filter-group filter-buttons">
+                    <button type="button" class="btn-primary" onclick="applyFilters()">应用筛选</button>
+                    <button type="button" class="btn-secondary" onclick="clearFilters()">清除筛选</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 礼金记录表格 -->
+        <div class="table-container">
+            <table id="giftTable">
+                <thead>
+                    <tr>
+                        <th class="sortable" onclick="sortTable('name')">宾客姓名</th>
+                        <th class="sortable" onclick="sortTable('amount')">礼金金额(元)</th>
+                        <th>祝福语</th>
+                        <th class="sortable" onclick="sortTable('recordTime')">记录时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="giftTableBody">
+                    <!-- 数据将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+            
+            <!-- 分页 -->
+            <div class="pagination" id="pagination">
+                <button class="btn-page" onclick="goToPage(1)" id="firstPage">首页</button>
+                <button class="btn-page" onclick="prevPage()" id="prevPage">上一页</button>
+                <span class="page-info" id="pageInfo">第 1 页 / 共 1 页</span>
+                <button class="btn-page" onclick="nextPage()" id="nextPage">下一页</button>
+                <button class="btn-page" onclick="goToPage(totalPages)" id="lastPage">末页</button>
+            </div>
+            
+            <!-- 导出按钮 -->
+            <div class="export-btn">
+                <button class="btn-primary" id="exportBtn" onclick="exportToCSV()">导出为CSV</button>
+                <button class="btn-secondary" id="exportExcelBtn" onclick="exportToExcel()">导出为Excel</button>
+            </div>
+        </div>
+        
+        <!-- 数据备份管理 -->
+        <div class="backup-container">
+            <h3 class="backup-title">数据备份管理</h3>
+            <div class="backup-actions">
+                <button type="button" class="btn-primary" onclick="createBackup()">创建备份</button>
+                <button type="button" class="btn-secondary" onclick="loadBackups()">刷新列表</button>
+            </div>
+            <div class="backup-list" id="backupList">
+                <p class="backup-empty">暂无备份记录</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载动画 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">加载中...</div>
+        </div>
+    </div>
+    
+    <!-- Toast容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- 配置文件 -->
+    <script src="config.js"></script>
+    <!-- SheetJS库用于Excel导出 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js库用于数据可视化 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <script>
+        // 全局变量
+        let gifts = [];
+        let filteredGifts = [];
+        let editingId = null;
+        let sortColumn = null;
+        let sortDirection = 'asc';
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 1;
+        let isLoading = false;
+        
+        // 使用配置文件中的API地址
+        const API_URL = window.appConfig ? window.appConfig.API_URL : 'http://localhost:3001/api/gifts';
+        const API_BASE_URL = window.appConfig ? window.appConfig.API_BASE_URL : 'http://localhost:3001';
+        
+        // 在控制台显示当前环境
+        console.log('当前环境:', window.ENV || 'development');
+        console.log('API地址:', API_URL);
+        
+        // 加载动画控制
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+        
+        // Toast提示函数
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            // 添加图标
+            const icon = getToastIcon(type);
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            // 自动移除
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+        
+        // 获取Toast图标
+        function getToastIcon(type) {
+            const icons = {
+                success: '✓',
+                error: '✗',
+                info: 'ℹ',
+                warning: '⚠'
+            };
+            return `<span style="font-weight: bold; font-size: 1.2em;">${icons[type] || icons.info}</span>`;
+        }
+        
+        // XSS防护 - HTML转义
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 金额格式化 - 添加千分位分隔符和货币符号
+        function formatAmount(amount) {
+            const num = parseFloat(amount);
+            if (isNaN(num)) return '¥0.00';
+            return '¥' + num.toLocaleString('zh-CN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        // 检查登录状态
+        function checkLoginStatus() {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                // 未登录，重定向到登录页面
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+        
+        // 主题配置
+        const themes = {
+            red: {
+                primary: '#c8102e',
+                secondary: '#e83e3e',
+                background: '#f5f2e9',
+                text: '#333'
+            },
+            blue: {
+                primary: '#1976d2',
+                secondary: '#2196f3',
+                background: '#e3f2fd',
+                text: '#333'
+            },
+            green: {
+                primary: '#388e3c',
+                secondary: '#4caf50',
+                background: '#e8f5e8',
+                text: '#333'
+            },
+            purple: {
+                primary: '#7b1fa2',
+                secondary: '#9c27b0',
+                background: '#f3e5f5',
+                text: '#333'
+            }
+        };
+        
+        // 应用主题
+        function applyTheme(themeName) {
+            const theme = themes[themeName];
+            if (!theme) return;
+            
+            // 保存主题到本地存储
+            localStorage.setItem('theme', themeName);
+            
+            // 应用主题颜色
+            document.documentElement.style.setProperty('--primary-color', theme.primary);
+            document.documentElement.style.setProperty('--secondary-color', theme.secondary);
+            document.documentElement.style.setProperty('--background-color', theme.background);
+            document.documentElement.style.setProperty('--text-color', theme.text);
+            
+            // 更新主题按钮状态
+            updateThemeButtons(themeName);
+        }
+        
+        // 更新主题按钮状态
+        function updateThemeButtons(activeTheme) {
+            const themeButtons = document.querySelectorAll('.theme-btn');
+            themeButtons.forEach(btn => {
+                if (btn.dataset.theme === activeTheme) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // 显示用户信息和登出按钮
+        function showUserInfo() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const userInfo = document.getElementById('userInfo');
+            userInfo.innerHTML = `
+                <span>欢迎，${user.username}</span>
+                <div class="theme-selector">
+                    <button class="theme-btn" data-theme="red" title="红色主题" onclick="applyTheme('red')">🔴</button>
+                    <button class="theme-btn" data-theme="blue" title="蓝色主题" onclick="applyTheme('blue')">🔵</button>
+                    <button class="theme-btn" data-theme="green" title="绿色主题" onclick="applyTheme('green')">🟢</button>
+                    <button class="theme-btn" data-theme="purple" title="紫色主题" onclick="applyTheme('purple')">🟣</button>
+                </div>
+                <button class="btn-logout" onclick="logout()">登出</button>
+            `;
+            
+            // 应用保存的主题
+            const savedTheme = localStorage.getItem('theme') || 'red';
+            applyTheme(savedTheme);
+        }
+        
+        // 登出功能
+        function logout() {
+            if (confirm('确定要登出吗？')) {
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                return;
+            }
+            
+            // 显示用户信息
+            showUserInfo();
+            
+            loadGifts();
+            setCurrentTime();
+            
+            // 表单提交事件
+            document.getElementById('giftForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (editingId) {
+                    updateGift();
+                } else {
+                    addGift();
+                }
+            });
+            
+            // 取消按钮事件
+            document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
+            
+            // 导出按钮事件
+            document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+            
+            // 实时更新时间
+            setInterval(setCurrentTime, 1000);
+        });
+        
+        // 设置当前时间
+        function setCurrentTime() {
+            const now = new Date();
+            const formattedTime = formatDateTime(now);
+            document.getElementById('recordTime').value = formattedTime;
+        }
+        
+        // 格式化日期时间
+        function formatDateTime(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+        
+        // 从API加载数据
+        async function loadGifts() {
+            if (isLoading) return;
+            
+            showLoading();
+            isLoading = true;
+            
+            try {
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    // 缓存数据到本地存储，减少重复请求
+                    localStorage.setItem('giftsCache', JSON.stringify(data.data));
+                    gifts = data.data;
+                    updateStats();
+                    renderTable();
+                } else {
+                    throw new Error(data.message || '加载数据失败');
+                }
+            } catch (error) {
+                console.error('加载礼金记录失败:', error);
+                
+                // 尝试从缓存加载数据
+                const cachedData = localStorage.getItem('giftsCache');
+                if (cachedData) {
+                    gifts = JSON.parse(cachedData);
+                    updateStats();
+                    renderTable();
+                    showToast('网络错误，使用缓存数据', 'warning');
+                } else {
+                    showToast('加载数据失败，请检查网络连接和后端服务', 'error');
+                }
+            } finally {
+                hideLoading();
+                isLoading = false;
+            }
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            const dataToUse = filteredGifts.length > 0 || isFiltering() ? filteredGifts : gifts;
+            const totalGuests = dataToUse.length;
+            const totalAmount = dataToUse.reduce((sum, gift) => sum + parseFloat(gift.amount), 0);
+            const averageAmount = totalGuests > 0 ? (totalAmount / totalGuests) : 0;
+            
+            document.getElementById('totalGuests').textContent = totalGuests;
+            document.getElementById('totalAmount').textContent = formatAmount(totalAmount);
+            document.getElementById('averageAmount').textContent = formatAmount(averageAmount);
+            
+            // 更新图表
+            updateCharts(dataToUse);
+        }
+        
+        // 全局图表实例
+        let amountDistributionChart = null;
+        let amountTrendChart = null;
+        
+        // 更新图表
+        function updateCharts(data) {
+            updateAmountDistributionChart(data);
+            updateAmountTrendChart(data);
+        }
+        
+        // 更新礼金分布图表
+        function updateAmountDistributionChart(data) {
+            const ctx = document.getElementById('amountDistributionChart').getContext('2d');
+            
+            // 礼金金额区间分布
+            const ranges = [
+                { min: 0, max: 100, label: '0-100元' },
+                { min: 100, max: 500, label: '100-500元' },
+                { min: 500, max: 1000, label: '500-1000元' },
+                { min: 1000, max: 5000, label: '1000-5000元' },
+                { min: 5000, max: Infinity, label: '5000元以上' }
+            ];
+            
+            const distribution = ranges.map(range => {
+                const count = data.filter(gift => {
+                    const amount = parseFloat(gift.amount);
+                    return amount >= range.min && amount < range.max;
+                }).length;
+                return count;
+            });
+            
+            const labels = ranges.map(range => range.label);
+            
+            // 销毁旧图表
+            if (amountDistributionChart) {
+                amountDistributionChart.destroy();
+            }
+            
+            // 创建新图表
+            amountDistributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '宾客数量',
+                        data: distribution,
+                        backgroundColor: 'rgba(200, 16, 46, 0.7)',
+                        borderColor: 'rgba(200, 16, 46, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 更新礼金趋势图表
+        function updateAmountTrendChart(data) {
+            const ctx = document.getElementById('amountTrendChart').getContext('2d');
+            
+            // 按日期分组数据
+            const dateGroups = {};
+            data.forEach(gift => {
+                const date = gift.recordTime.split(' ')[0];
+                if (!dateGroups[date]) {
+                    dateGroups[date] = 0;
+                }
+                dateGroups[date] += parseFloat(gift.amount);
+            });
+            
+            // 转换为数组并排序
+            const sortedDates = Object.keys(dateGroups).sort();
+            const amounts = sortedDates.map(date => dateGroups[date]);
+            
+            // 销毁旧图表
+            if (amountTrendChart) {
+                amountTrendChart.destroy();
+            }
+            
+            // 创建新图表
+            amountTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: '礼金总额(元)',
+                        data: amounts,
+                        borderColor: 'rgba(200, 16, 46, 1)',
+                        backgroundColor: 'rgba(200, 16, 46, 0.1)',
+                        borderWidth: 1.5,
+                        tension: 0.1,
+                        fill: true,
+                        pointRadius: 2,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 检查是否正在筛选
+        function isFiltering() {
+            const searchName = document.getElementById('searchName').value.trim();
+            const minAmount = document.getElementById('minAmount').value;
+            const maxAmount = document.getElementById('maxAmount').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            return searchName || minAmount || maxAmount || startDate || endDate;
+        }
+        
+        // 渲染表格
+        function renderTable() {
+            const tableBody = document.getElementById('giftTableBody');
+            tableBody.innerHTML = '';
+            
+            const dataToRender = filteredGifts.length > 0 || isFiltering() ? filteredGifts : gifts;
+            
+            if (dataToRender.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td colspan="5" style="text-align: center; padding: 30px; color: #888;">
+                        ${isFiltering() ? '没有找到符合条件的记录' : '暂无礼金记录，请添加第一条记录'}
+                    </td>
+                `;
+                tableBody.appendChild(emptyRow);
+                updatePagination(0);
+                return;
+            }
+            
+            // 计算分页
+            totalPages = Math.ceil(dataToRender.length / pageSize);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+            
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, dataToRender.length);
+            const pageData = dataToRender.slice(startIndex, endIndex);
+            
+            // 使用文档片段来减少DOM操作次数，提高性能
+            const fragment = document.createDocumentFragment();
+            
+            pageData.forEach(gift => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${escapeHtml(gift.name)}</td>
+                    <td>${formatAmount(gift.amount)}</td>
+                    <td>${escapeHtml(gift.blessing) || '-'}</td>
+                    <td>${escapeHtml(gift.recordTime)}</td>
+                    <td class="action-buttons">
+                        <button class="btn-edit" onclick="editGift('${gift.id}')">编辑</button>
+                        <button class="btn-delete" onclick="deleteGift('${gift.id}')">删除</button>
+                    </td>
+                `;
+                fragment.appendChild(row);
+            });
+            
+            tableBody.appendChild(fragment);
+            updatePagination(dataToRender.length);
+        }
+        
+        // 更新分页控件
+        function updatePagination(totalItems) {
+            const pageInfo = document.getElementById('pageInfo');
+            const firstPage = document.getElementById('firstPage');
+            const prevPage = document.getElementById('prevPage');
+            const nextPage = document.getElementById('nextPage');
+            const lastPage = document.getElementById('lastPage');
+            
+            if (totalItems === 0) {
+                pageInfo.textContent = '第 1 页 / 共 1 页';
+                firstPage.disabled = true;
+                prevPage.disabled = true;
+                nextPage.disabled = true;
+                lastPage.disabled = true;
+                return;
+            }
+            
+            pageInfo.textContent = `第 ${currentPage} 页 / 共 ${totalPages} 页 (共 ${totalItems} 条记录)`;
+            
+            firstPage.disabled = currentPage === 1;
+            prevPage.disabled = currentPage === 1;
+            nextPage.disabled = currentPage === totalPages;
+            lastPage.disabled = currentPage === totalPages;
+        }
+        
+        // 分页导航函数
+        function goToPage(page) {
+            currentPage = page;
+            renderTable();
+        }
+        
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+        
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+        
+        // 应用筛选
+        function applyFilters() {
+            const searchName = document.getElementById('searchName').value.trim().toLowerCase();
+            const minAmount = parseFloat(document.getElementById('minAmount').value) || 0;
+            const maxAmount = parseFloat(document.getElementById('maxAmount').value) || Infinity;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            filteredGifts = gifts.filter(gift => {
+                // 姓名筛选
+                if (searchName && !gift.name.toLowerCase().includes(searchName)) {
+                    return false;
+                }
+                
+                // 金额筛选
+                const amount = parseFloat(gift.amount);
+                if (amount < minAmount || amount > maxAmount) {
+                    return false;
+                }
+                
+                // 日期筛选
+                if (startDate || endDate) {
+                    const giftDate = new Date(gift.recordTime);
+                    const giftDateStr = giftDate.toISOString().split('T')[0];
+                    
+                    if (startDate && giftDateStr < startDate) {
+                        return false;
+                    }
+                    if (endDate && giftDateStr > endDate) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            updateStats();
+            renderTable();
+        }
+        
+        // 清除筛选
+        function clearFilters() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('minAmount').value = '';
+            document.getElementById('maxAmount').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            
+            filteredGifts = [];
+            updateStats();
+            renderTable();
+        }
+        
+        // 表格排序
+        function sortTable(column) {
+            // 切换排序方向
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            
+            // 更新表头样式
+            updateSortHeaders();
+            
+            // 获取要排序的数据
+            let dataToSort = filteredGifts.length > 0 || isFiltering() ? filteredGifts : gifts;
+            
+            // 执行排序
+            dataToSort.sort((a, b) => {
+                let valueA = a[column];
+                let valueB = b[column];
+                
+                // 根据列类型进行排序
+                if (column === 'amount') {
+                    valueA = parseFloat(valueA);
+                    valueB = parseFloat(valueB);
+                } else if (column === 'recordTime') {
+                    valueA = new Date(valueA);
+                    valueB = new Date(valueB);
+                } else {
+                    valueA = valueA.toString().toLowerCase();
+                    valueB = valueB.toString().toLowerCase();
+                }
+                
+                if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+                if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            // 更新显示
+            if (filteredGifts.length > 0 || isFiltering()) {
+                filteredGifts = dataToSort;
+            } else {
+                gifts = dataToSort;
+            }
+            
+            renderTable();
+        }
+        
+        // 更新排序表头样式
+        function updateSortHeaders() {
+            const headers = document.querySelectorAll('#giftTable th');
+            headers.forEach(header => {
+                header.classList.remove('sort-asc', 'sort-desc');
+                if (header.classList.contains('sortable')) {
+                    header.classList.add('sortable');
+                }
+            });
+            
+            if (sortColumn) {
+                const columnMap = {
+                    'name': 0,
+                    'amount': 1,
+                    'recordTime': 3
+                };
+                
+                const headerIndex = columnMap[sortColumn];
+                if (headerIndex !== undefined) {
+                    const header = headers[headerIndex];
+                    header.classList.remove('sortable');
+                    header.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            }
+        }
+        
+        // 验证表单
+        function validateForm() {
+            let isValid = true;
+            const name = document.getElementById('name').value.trim();
+            const amount = document.getElementById('amount').value;
+            
+            // 清除之前的错误状态
+            clearErrors();
+            
+            // 验证姓名
+            if (!name) {
+                showError('name', '请输入宾客姓名');
+                isValid = false;
+            } else if (name.length > 50) {
+                showError('name', '宾客姓名不能超过50个字符');
+                isValid = false;
+            } else if (!/^[^<>\"'&]+$/.test(name)) {
+                showError('name', '姓名包含非法字符');
+                isValid = false;
+            }
+            
+            // 验证金额
+            if (!amount || amount === '') {
+                showError('amount', '请输入礼金金额');
+                isValid = false;
+            } else {
+                const amountNum = parseFloat(amount);
+                if (isNaN(amountNum) || amountNum < 0) {
+                    showError('amount', '金额不能为负数');
+                    isValid = false;
+                } else if (amountNum > 999999.99) {
+                    showError('amount', '金额不能超过999,999.99元');
+                    isValid = false;
+                }
+            }
+            
+            return isValid;
+        }
+        
+        // 显示错误信息
+        function showError(field, message) {
+            const input = document.getElementById(field);
+            const errorDiv = document.getElementById(field + 'Error');
+            input.classList.add('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+        
+        // 清除错误信息
+        function clearErrors() {
+            const inputs = document.querySelectorAll('input, textarea');
+            const errorDivs = document.querySelectorAll('.error-message');
+            inputs.forEach(input => input.classList.remove('error'));
+            errorDivs.forEach(div => {
+                div.textContent = '';
+                div.classList.remove('show');
+            });
+        }
+        
+        // 检查是否重复
+        function isDuplicate(name, excludeId = null) {
+            const trimmedName = name.trim();
+            return gifts.some(gift => {
+                if (excludeId && gift.id == excludeId) return false;
+                return gift.name.trim() === trimmedName;
+            });
+        }
+        
+        // 添加礼金记录
+        async function addGift() {
+            // 先进行前端验证
+            if (!validateForm()) {
+                return;
+            }
+            
+            const name = document.getElementById('name').value.trim();
+            const amount = document.getElementById('amount').value;
+            const blessing = document.getElementById('blessing').value;
+            
+            // 检查是否重复
+            if (isDuplicate(name)) {
+                showError('name', '该宾客已存在，请使用编辑功能修改');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, amount, blessing })
+                });
+                const data = await response.json();
+                if (data.code === 200) {
+                    await loadGifts();
+                    resetForm();
+                    showToast('添加成功', 'success');
+                } else {
+                    showToast('添加失败: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('添加礼金记录失败:', error);
+                showToast('添加失败，请检查后端服务是否运行', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 编辑礼金记录
+        function editGift(id) {
+            const gift = gifts.find(g => g.id == id);
+            if (gift) {
+                editingId = id;
+                document.getElementById('editId').value = id;
+                document.getElementById('name').value = gift.name;
+                document.getElementById('amount').value = gift.amount;
+                document.getElementById('blessing').value = gift.blessing;
+                document.getElementById('recordTime').value = gift.recordTime;
+                document.getElementById('formTitle').textContent = '编辑礼金记录';
+                document.getElementById('submitBtn').textContent = '更新';
+                document.getElementById('cancelBtn').style.display = 'block';
+            }
+        }
+        
+        // 更新礼金记录
+        async function updateGift() {
+            // 先进行前端验证
+            if (!validateForm()) {
+                return;
+            }
+            
+            const id = document.getElementById('editId').value;
+            const name = document.getElementById('name').value.trim();
+            const amount = document.getElementById('amount').value;
+            const blessing = document.getElementById('blessing').value;
+            
+            // 检查是否重复（排除当前编辑的记录）
+            if (isDuplicate(name, id)) {
+                showError('name', '该宾客姓名已存在，请使用其他姓名');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, amount, blessing })
+                });
+                const data = await response.json();
+                if (data.code === 200) {
+                    await loadGifts();
+                    resetForm();
+                    showToast('更新成功', 'success');
+                } else {
+                    showToast('更新失败: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('更新礼金记录失败:', error);
+                showToast('更新失败，请检查后端服务是否运行', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 删除礼金记录
+        async function deleteGift(id) {
+            if (confirm('确定要删除这条记录吗？')) {
+                showLoading();
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE'
+                    });
+                    const data = await response.json();
+                    if (data.code === 200) {
+                        await loadGifts();
+                        showToast('删除成功', 'success');
+                    } else {
+                        showToast('删除失败: ' + data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('删除礼金记录失败:', error);
+                    showToast('删除失败，请检查后端服务是否运行', 'error');
+                } finally {
+                    hideLoading();
+                }
+            }
+        }
+        
+        // 取消编辑
+        function cancelEdit() {
+            resetForm();
+        }
+        
+        // 重置表单
+        function resetForm() {
+            document.getElementById('giftForm').reset();
+            editingId = null;
+            document.getElementById('editId').value = '';
+            document.getElementById('formTitle').textContent = '添加礼金记录';
+            document.getElementById('submitBtn').textContent = '新增';
+            document.getElementById('cancelBtn').style.display = 'none';
+            clearErrors();
+            setCurrentTime();
+        }
+        
+        // 导出为CSV
+        function exportToCSV() {
+            if (gifts.length === 0) {
+                alert('没有数据可导出');
+                return;
+            }
+            
+            // 添加BOM防止中文乱码
+            let csvContent = '\ufeff';
+            
+            // 添加表头
+            csvContent += '宾客姓名,礼金金额(元),祝福语,记录时间\n';
+            
+            // 添加数据行
+            gifts.forEach(gift => {
+                const row = [
+                    `"${gift.name}"`,
+                    gift.amount,
+                    `"${gift.blessing || ''}"`,
+                    `"${gift.recordTime}"`
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+            
+            // 创建Blob对象
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            
+            // 创建下载链接
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `礼金记录_${formatDateTime(new Date()).replace(/[:\s]/g, '-')}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // 导出为Excel
+        function exportToExcel() {
+            if (gifts.length === 0) {
+                alert('没有数据可导出');
+                return;
+            }
+            
+            // 准备数据
+            const data = gifts.map(gift => {
+                return {
+                    '宾客姓名': gift.name,
+                    '礼金金额(元)': gift.amount,
+                    '祝福语': gift.blessing || '',
+                    '记录时间': gift.recordTime
+                };
+            });
+            
+            // 创建工作簿
+            const wb = XLSX.utils.book_new();
+            
+            // 创建工作表
+            const ws = XLSX.utils.json_to_sheet(data);
+            
+            // 调整列宽
+            const wscols = [
+                { wch: 20 }, // 宾客姓名
+                { wch: 15 }, // 礼金金额
+                { wch: 30 }, // 祝福语
+                { wch: 20 }  // 记录时间
+            ];
+            ws['!cols'] = wscols;
+            
+            // 将工作表添加到工作簿
+            XLSX.utils.book_append_sheet(wb, ws, '礼金记录');
+            
+            // 生成Excel文件
+            XLSX.writeFile(wb, `礼金记录_${formatDateTime(new Date()).replace(/[:\s]/g, '-')}.xlsx`);
+        }
+        
+        // 加载备份列表
+        async function loadBackups() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/gifts/backups`);
+                const data = await response.json();
+                if (data.code === 200) {
+                    renderBackupList(data.data);
+                }
+            } catch (error) {
+                console.error('加载备份列表失败:', error);
+            }
+        }
+        
+        // 渲染备份列表
+        function renderBackupList(backups) {
+            const backupList = document.getElementById('backupList');
+            
+            if (backups.length === 0) {
+                backupList.innerHTML = '<p class="backup-empty">暂无备份记录</p>';
+                return;
+            }
+            
+            backupList.innerHTML = backups.map(backup => `
+                <div class="backup-item">
+                    <div class="backup-info">
+                        <div class="backup-filename">${escapeHtml(backup.filename)}</div>
+                        <div class="backup-date">${escapeHtml(formatDateTime(new Date(backup.created)))}</div>
+                    </div>
+                    <div class="backup-size">${formatFileSize(backup.size)}</div>
+                    <div class="backup-actions-item">
+                        <button class="btn-edit" onclick="restoreBackup('${escapeHtml(backup.filename)}')">恢复</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 创建备份
+        async function createBackup() {
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/gifts/backups`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                if (data.code === 200) {
+                    showToast('备份创建成功', 'success');
+                    loadBackups();
+                } else {
+                    showToast('备份创建失败: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('创建备份失败:', error);
+                showToast('创建备份失败', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 恢复备份
+        async function restoreBackup(filename) {
+            if (!confirm(`确定要恢复到备份 "${filename}" 吗？\n当前数据将被覆盖！`)) {
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/gifts/backups/restore`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ filename })
+                });
+                const data = await response.json();
+                if (data.code === 200) {
+                    showToast('数据恢复成功', 'success');
+                    await loadGifts();
+                } else {
+                    showToast('数据恢复失败: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('恢复备份失败:', error);
+                showToast('恢复备份失败', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 页面加载时加载备份列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBackups();
+        });
+    </script>
+</body>
+</html>

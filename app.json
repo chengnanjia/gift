@@ -1,0 +1,26 @@
+{
+  "name": "宴席礼金记录簿",
+  "description": "一个功能完善的宴席礼金记录管理系统",
+  "repository": "https://github.com/yourusername/wedding-gift-book",
+  "logo": "",
+  "keywords": ["node", "express", "gift", "wedding"],
+  "image": "heroku/nodejs",
+  "env": {
+    "NODE_ENV": {
+      "description": "运行环境",
+      "value": "production"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "addons": [],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
