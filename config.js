@@ -9,8 +9,8 @@ const config = {
   // 生产环境（部署后需要修改这里）
   production: {
     // 替换为你的后端服务地址
-    API_URL: 'https://your-backend-url.com/api/gifts',
-    API_BASE_URL: 'https://your-backend-url.com'
+    API_URL: 'https://web-production-aebaa.up.railway.app/api/gifts',
+    API_BASE_URL: 'https://web-production-aebaa.up.railway.app'
   }
 };
 
