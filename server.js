@@ -20,7 +20,9 @@ const corsOptions = {
       // GitHub Pages域名（替换为你的实际域名）
       'https://github.com/chengnanjia/gift_system',
       // 其他生产环境域名
-      'https://github.github.io/chengnanjia/gift_system'
+      'https://github.github.io/chengnanjia/gift_system',
+      // Railway部署域名
+      'https://web-production-aebaa.up.railway.app'
     ];
     
     // 开发环境允许所有来源
