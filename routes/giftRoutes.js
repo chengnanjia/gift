@@ -8,21 +8,39 @@ const dataFile = path.join(__dirname, '../data.json');
 
 // 确保数据文件存在
 function ensureDataFile() {
-  if (!fs.existsSync(dataFile)) {
-    fs.writeFileSync(dataFile, JSON.stringify([]));
+  try {
+    if (!fs.existsSync(dataFile)) {
+      console.log('创建数据文件:', dataFile);
+      fs.writeFileSync(dataFile, JSON.stringify([]));
+      console.log('数据文件创建成功');
+    }
+  } catch (error) {
+    console.error('确保数据文件存在失败:', error);
+    throw error;
   }
 }
 
 // 读取数据
 function readData() {
-  ensureDataFile();
-  const data = fs.readFileSync(dataFile, 'utf8');
-  return JSON.parse(data);
+  try {
+    ensureDataFile();
+    const data = fs.readFileSync(dataFile, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('读取数据失败:', error);
+    throw error;
+  }
 }
 
 // 写入数据
 function writeData(data) {
-  fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+  try {
+    fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+    console.log('数据写入成功');
+  } catch (error) {
+    console.error('写入数据失败:', error);
+    throw error;
+  }
 }
 
 // 备份目录
@@ -30,15 +48,28 @@ const backupDir = path.join(__dirname, '../backups');
 
 // 确保备份目录存在
 function ensureBackupDir() {
-  if (!fs.existsSync(backupDir)) {
-    fs.mkdirSync(backupDir, { recursive: true });
+  try {
+    if (!fs.existsSync(backupDir)) {
+      console.log('创建备份目录:', backupDir);
+      fs.mkdirSync(backupDir, { recursive: true });
+      console.log('备份目录创建成功');
+    }
+  } catch (error) {
+    console.error('确保备份目录存在失败:', error);
+    // 备份目录创建失败不影响主功能，返回false
+    return false;
   }
+  return true;
 }
 
 // 创建备份
 function createBackup() {
   try {
-    ensureBackupDir();
+    const backupDirCreated = ensureBackupDir();
+    if (!backupDirCreated) {
+      console.warn('备份目录创建失败，跳过备份');
+      return null;
+    }
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
     const backupFile = path.join(backupDir, `backup_${timestamp}.json`);
     const data = readData();
