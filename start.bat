@@ -1,36 +1,46 @@
 @echo off
+cd /d "%~dp0"
 
-echo 宴席礼金记录簿启动脚本
-echo ======================
+echo Wedding Gift Book startup
+echo =========================
 echo.
 
-rem 检查是否安装了Node.js
-echo 检查Node.js安装...
+rem Use ASCII-only output to avoid legacy Windows code-page decoding issues.
+echo Checking Node.js...
 node --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo 错误: 未找到Node.js，请先安装Node.js
-    echo 请前往 https://nodejs.org/ 下载并安装
+if errorlevel 1 (
+    echo ERROR: Node.js was not found. Install it from https://nodejs.org/
     pause
     exit /b 1
 )
-echo Node.js安装正常
+echo Node.js is available.
 
-rem 检查是否安装了依赖
-echo 检查项目依赖...
+echo Checking npm...
+npm --version >nul 2>&1
+if errorlevel 1 (
+    echo ERROR: npm was not found. Reinstall Node.js from https://nodejs.org/
+    pause
+    exit /b 1
+)
+
+echo Checking project dependencies...
 if not exist "node_modules" (
-    echo 未找到依赖，正在安装...
+    echo Dependencies are missing. Running npm install...
     npm install
-    if %errorlevel% neq 0 (
-        echo 依赖安装失败，请检查网络连接
+    if errorlevel 1 (
+        echo ERROR: Dependency installation failed. Check your network and npm output.
         pause
         exit /b 1
     )
-    echo 依赖安装成功
+    echo Dependencies installed.
 )
 
-rem 启动后端服务
-echo 启动后端服务...
-echo 服务将运行在 http://localhost:3000
-echo 按 Ctrl+C 停止服务
+echo Starting the backend...
+echo The default address is http://localhost:3000
+echo Press Ctrl+C to stop the server.
 echo.
 npm start
+if errorlevel 1 (
+    echo ERROR: The backend stopped with an error.
+)
+pause

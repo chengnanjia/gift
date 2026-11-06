@@ -850,8 +850,20 @@
     
     <!-- 配置文件 -->
     <script src="config.js"></script>
-    <!-- SheetJS库用于Excel导出 -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- SheetJS 本地优先异步加载；本地文件缺失时再尝试 CDN。 -->
+    <script src="vendor/xlsx.full.min.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.XLSX) return;
+            const fallbackScript = document.createElement('script');
+            fallbackScript.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+            fallbackScript.async = true;
+            fallbackScript.onerror = function() {
+                console.warn('Excel导出组件加载失败；请检查 vendor 文件或网络连接。');
+            };
+            document.head.appendChild(fallbackScript);
+        });
+    </script>
     
     <script>
         // 全局变量
@@ -1626,6 +1638,10 @@
         function exportToExcel() {
             if (gifts.length === 0) {
                 alert('没有数据可导出');
+                return;
+            }
+            if (!window.XLSX) {
+                showToast('Excel 导出组件未能加载。请确认 vendor/xlsx.full.min.js 存在，或检查网络后重试。', 'error');
                 return;
             }
             

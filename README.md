@@ -91,6 +91,16 @@ set PORT=3001 && npm start
 - **用户名**: admin
 - **密码**: admin123
 
+Windows 用户也可运行 `start.bat` 或 `start.ps1`。PowerShell 执行策略阻止脚本时，可仅为当前进程临时放宽限制：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start.ps1
+```
+
+无需修改系统级执行策略。启动脚本使用英文提示，以避免 Windows PowerShell 5.1 或旧代码页错误解码 UTF-8 中文。
+
+Excel 导出使用本地的 SheetJS `xlsx` 0.18.5（Apache-2.0，来源：npm `xlsx` 发布包及 jsDelivr）；本地文件缺失时会异步尝试 CDN。若两者均不可用，页面仍可使用，Excel 导出会给出提示。
+
 ## 部署到生产环境
 
 ### 方案一：分离部署（推荐）

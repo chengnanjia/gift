@@ -8,7 +8,12 @@ const giftRoutes = require('./routes/giftRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const frontendFiles = new Set(['/index.html', '/login.html', '/config.js']);
+const frontendFiles = new Set([
+  '/index.html',
+  '/login.html',
+  '/config.js',
+  '/vendor/xlsx.full.min.js'
+]);
 
 // CORS配置
 const corsOptions = {

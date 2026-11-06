@@ -1,44 +1,49 @@
-Write-Host "宴席礼金记录簿启动脚本" -ForegroundColor Green
-Write-Host "======================" -ForegroundColor Green
+Write-Host "Wedding Gift Book startup" -ForegroundColor Green
+Write-Host "=========================" -ForegroundColor Green
 Write-Host ""
 
-# 检查是否安装了Node.js
-Write-Host "检查Node.js安装..." -ForegroundColor Cyan
-try {
-    $nodeVersion = node --version
-    Write-Host "Node.js安装正常: $nodeVersion" -ForegroundColor Green
-} catch {
-    Write-Host "错误: 未找到Node.js，请先安装Node.js" -ForegroundColor Red
-    Write-Host "请前往 https://nodejs.org/ 下载并安装" -ForegroundColor Yellow
-    pause
+Set-Location $PSScriptRoot
+
+Write-Host "Checking Node.js..." -ForegroundColor Cyan
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    Write-Host "ERROR: Node.js was not found. Install it from https://nodejs.org/" -ForegroundColor Red
+    Read-Host "Press Enter to exit"
+    exit 1
+}
+$nodeVersion = node --version
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERROR: Could not run Node.js." -ForegroundColor Red
+    Read-Host "Press Enter to exit"
+    exit 1
+}
+Write-Host "Node.js is available: $nodeVersion" -ForegroundColor Green
+
+if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+    Write-Host "ERROR: npm was not found. Reinstall Node.js from https://nodejs.org/" -ForegroundColor Red
+    Read-Host "Press Enter to exit"
     exit 1
 }
 
-# 检查是否安装了依赖
-Write-Host "检查项目依赖..." -ForegroundColor Cyan
+Write-Host "Checking project dependencies..." -ForegroundColor Cyan
 if (-not (Test-Path "node_modules")) {
-    Write-Host "未找到依赖，正在安装..." -ForegroundColor Yellow
-    try {
-        npm install
-        Write-Host "依赖安装成功" -ForegroundColor Green
-    } catch {
-        Write-Host "依赖安装失败，请检查网络连接" -ForegroundColor Red
-        pause
+    Write-Host "Dependencies are missing. Running npm install..." -ForegroundColor Yellow
+    npm install
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "ERROR: Dependency installation failed. Check your network and npm output." -ForegroundColor Red
+        Read-Host "Press Enter to exit"
         exit 1
     }
 } else {
-    Write-Host "依赖已安装" -ForegroundColor Green
+    Write-Host "Dependencies are already installed." -ForegroundColor Green
 }
 
-# 启动后端服务
-Write-Host "启动后端服务..." -ForegroundColor Cyan
-Write-Host "服务将运行在 http://localhost:3000" -ForegroundColor Yellow
-Write-Host "按 Ctrl+C 停止服务" -ForegroundColor Yellow
+Write-Host "Starting the backend..." -ForegroundColor Cyan
+Write-Host "The default address is http://localhost:3000" -ForegroundColor Yellow
+Write-Host "Press Ctrl+C to stop the server." -ForegroundColor Yellow
 Write-Host ""
-try {
-    npm start
-} catch {
-    Write-Host "服务启动失败: $_" -ForegroundColor Red
-    pause
+npm start
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERROR: The backend stopped with exit code $LASTEXITCODE." -ForegroundColor Red
+    Read-Host "Press Enter to exit"
     exit 1
 }
