@@ -38,6 +38,11 @@
 
 ## 本地开发
 
+### 运行环境
+
+- Node.js 18 或更高版本（已在 Node.js 20/22 环境验证）
+- npm
+
 ### 1. 克隆项目
 
 ```bash
@@ -58,6 +63,27 @@ npm start
 ```
 
 后端服务将运行在 http://localhost:3000
+
+服务从项目目录以外启动时仍会使用项目目录中的静态页面和 `data.json`。静态服务仅开放 `index.html`、`login.html` 和 `config.js`，不会提供数据文件或备份目录的下载。
+
+默认端口被占用时，可更换端口启动：
+
+```bash
+PORT=3001 npm start
+```
+
+Windows PowerShell：
+
+```powershell
+$env:PORT=3001
+npm start
+```
+
+Windows CMD：
+
+```bat
+set PORT=3001 && npm start
+```
 
 ### 4. 访问前端页面
 
