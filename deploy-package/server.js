@@ -1,36 +1,32 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
 const giftRoutes = require('./routes/giftRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // CORS配置
 const corsOptions = {
   origin: function (origin, callback) {
     // 允许的开发环境
-    const allowedOrigins = [
+    const allowedOrigins = new Set([
       'http://localhost:3000',
       'http://127.0.0.1:3000',
       'http://localhost:5500',
       'http://127.0.0.1:5500',
-      // GitHub Pages域名（替换为你的实际域名）
-      'https://github.com/chengnanjia/gift_system',
-      // 其他生产环境域名
-      'https://github.github.io/chengnanjia/gift_system'
-    ];
+      'https://chengnanjia.github.io'
+    ]);
     
     // 开发环境允许所有来源
     if (NODE_ENV === 'development' || !origin) {
       callback(null, true);
-    } else if (allowedOrigins.indexOf(origin) !== -1) {
+    } else if (allowedOrigins.has(origin)) {
       callback(null, true);
     } else {
-      console.log('CORS阻止的请求来源:', origin);
-      callback(new Error('不允许的来源'));
+      console.error(`[CORS] 拒绝跨域请求 Origin=${origin}。请检查 server.js 中的 allowedOrigins。`);
+      callback(new Error(`CORS 拒绝来源: ${origin}`));
     }
   },
   credentials: true,
@@ -42,11 +38,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// 静态文件服务（生产环境）
-if (NODE_ENV === 'production') {
-  app.use(express.static('public'));
-}
 
 // 路由
 app.use('/api/gifts', giftRoutes);
@@ -80,7 +71,29 @@ app.use((err, req, res, next) => {
 });
 
 // 启动服务器
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);
+  console.log(`数据文件: ${path.join(__dirname, 'data.json')}`);
   console.log(`环境: ${NODE_ENV}`);
+});
+
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`端口 ${PORT} 已被占用，请关闭占用进程或更换端口。`);
+    console.error('Linux/macOS: PORT=3001 npm start');
+    console.error('Windows PowerShell: $env:PORT=3001; npm start');
+    console.error('Windows CMD: set PORT=3001 && npm start');
+    process.exitCode = 1;
+    return;
+  }
+  throw error;
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('发生未捕获异常，服务即将退出:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('发生未处理的 Promise 拒绝:', reason);
 });

@@ -1,215 +1,105 @@
 # 宴席礼金记录簿
 
-一个功能完善的宴席礼金记录管理系统，支持添加、编辑、删除、搜索、筛选、排序、分页、备份恢复等功能，具有流畅的动画效果。
+基于 Node.js、Express 和 `data.json` 的礼金记录管理页面，支持记录增删改查、搜索筛选、排序分页、备份恢复、CSV/Excel 导出、主题切换和移动端布局。
 
-## 动画效果
-
-- ✅ 加载动画：数据加载时显示旋转动画
-- ✅ Toast提示：操作成功/失败时的滑入滑出动画
-- ✅ 表单验证：错误提示的淡入效果
-- ✅ 表格排序：排序状态的切换动画
-- ✅ 响应式布局：不同屏幕尺寸的平滑过渡
-
-## 功能特性
-
-- ✅ 礼金记录管理（添加、编辑、删除）
-- ✅ 数据验证（姓名长度、金额范围、防重复）
-- ✅ 搜索和筛选（按姓名、金额范围、时间段）
-- ✅ 数据排序（按姓名、金额、时间）
-- ✅ 分页显示（每页10条记录）
-- ✅ 数据备份和恢复（自动备份+手动备份）
-- ✅ 数据导出（CSV格式和Excel格式）
-- ✅ 响应式设计（支持移动端）
-- ✅ 加载动画和Toast提示
-- ✅ XSS安全防护
-- ✅ 金额格式化（千分位分隔符+货币符号）
-- ✅ 用户认证/登录功能
-- ✅ 自定义主题/颜色方案
-
-- ✅ 性能优化（数据缓存、DOM操作优化）
-
-## 技术栈
-
-- **前端**: HTML5, CSS3, JavaScript (原生)
-- **第三方库**: SheetJS (Excel导出)
-- **后端**: Node.js, Express
-- **数据存储**: JSON文件
-- **部署**: 支持GitHub Pages + Heroku/Railway
-
-## 本地开发
-
-### 运行环境
+## 运行环境
 
 - Node.js 18 或更高版本（已在 Node.js 20/22 环境验证）
 - npm
 
-### 1. 克隆项目
-
-```bash
-git clone https://github.com/yourusername/wedding-gift-book.git
-cd wedding-gift-book
-```
-
-### 2. 安装依赖
+## 本地启动
 
 ```bash
 npm install
-```
-
-### 3. 启动后端服务
-
-```bash
 npm start
 ```
 
-后端服务将运行在 http://localhost:3000
+默认访问 `http://localhost:3000/login.html`。也可以直接打开 `http://localhost:3000/` 进入主页面。服务会打印监听地址和项目目录下的数据文件路径。
 
-服务从项目目录以外启动时仍会使用项目目录中的静态页面和 `data.json`。静态服务仅开放 `index.html`、`login.html` 和 `config.js`，不会提供数据文件或备份目录的下载。
+可以从其他工作目录启动，页面和数据仍相对于项目目录定位：
 
-默认端口被占用时，可更换端口启动：
+```bash
+node /path/to/gift/server.js
+```
+
+默认端口被占用时，可更换端口：
 
 ```bash
 PORT=3001 npm start
 ```
 
-Windows PowerShell：
+PowerShell：`$env:PORT=3001; npm start`；Windows CMD：`set PORT=3001 && npm start`。
 
-```powershell
-$env:PORT=3001
-npm start
-```
+后端仅向浏览器提供 `index.html`、`login.html`、`config.js` 和 Excel 导出资源。`data.json`、`backups/`、服务端源码及其他文件不通过静态服务公开。数据保存在项目目录，定期备份 `data.json` 和 `backups/`。
 
-Windows CMD：
+## 前端 API 地址
 
-```bat
-set PORT=3001 && npm start
-```
+- HTTP/HTTPS 页面默认请求当前页面的同源 API，适用于 localhost、局域网 IP、WSL IP 和端口转发地址。
+- GitHub Pages 页面使用 `config.js` 顶部的 `GITHUB_PAGES_API_BASE_URL`。部署前请将其设为可访问的后端 HTTPS 根地址。
+- 直接以 `file:` 打开页面时，API 回退到 `http://localhost:3000`；浏览器仍需允许该本地后端的跨域请求。
+- 请求失败时页面显示所请求的 API 地址和检查建议；若有缓存，会保留缓存显示并提示用户。
 
-### 4. 访问前端页面
+## Windows 启动脚本
 
-在浏览器中访问 `http://localhost:3000/login.html`，使用以下默认凭据登录：
-- **用户名**: admin
-- **密码**: admin123
+可运行 `start.bat` 或 `start.ps1`。脚本使用纯英文提示，避免旧版 Windows PowerShell/cmd 对中文编码的误读；PowerShell 脚本会检查 npm 命令和 `$LASTEXITCODE`。
 
-Windows 用户也可运行 `start.bat` 或 `start.ps1`。PowerShell 执行策略阻止脚本时，可仅为当前进程临时放宽限制：
+若 PowerShell 执行策略阻止脚本，可仅对本次进程放宽限制：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\start.ps1
 ```
 
-无需修改系统级执行策略。启动脚本使用英文提示，以避免 Windows PowerShell 5.1 或旧代码页错误解码 UTF-8 中文。
+无需修改系统级执行策略。
 
-Excel 导出使用本地的 SheetJS `xlsx` 0.18.5（Apache-2.0，来源：npm `xlsx` 发布包及 jsDelivr）；本地文件缺失时会异步尝试 CDN。若两者均不可用，页面仍可使用，Excel 导出会给出提示。
+## Excel 导出
 
-## 部署到生产环境
+使用本地 SheetJS `xlsx` 0.18.5，许可证为 Apache-2.0，来源为 npm 发布包；许可文本随附于 `vendor/XLSX-LICENSE.txt`。本地脚本加载失败时会异步尝试 jsDelivr CDN。若本地和 CDN 均不可用，页面仍可使用，Excel 导出会明确提示；CSV 导出不依赖该库。
 
-### 方案一：分离部署（推荐）
+## API
 
-#### 前端部署到 GitHub Pages
+| 方法 | 路径 | 用途 |
+|---|---|---|
+| GET | `/health` | 健康检查 |
+| GET | `/api/gifts` | 获取记录 |
+| POST | `/api/gifts` | 新增记录 |
+| PUT | `/api/gifts/:id` | 更新记录 |
+| DELETE | `/api/gifts/:id` | 删除记录 |
+| GET | `/api/gifts/stats` | 统计数据 |
+| GET/POST | `/api/gifts/backups` | 查询/创建备份 |
+| POST | `/api/gifts/backups/restore` | 恢复备份 |
 
-1. 创建前端分支
-```bash
-git checkout -b gh-pages
-```
+生产环境的跨域白名单位于 `server.js` 的 `allowedOrigins`。条目必须是纯 origin（协议、主机和可选端口，不带路径）；自定义前端域名需将其 origin 加入白名单。
 
-2. 修改API地址为生产环境地址（见下文配置）
+## 登录与安全边界
 
-3. 推送到GitHub
-```bash
-git push origin gh-pages
-```
+登录页目前仅在浏览器端校验固定的 `admin` / `admin123`，登录状态写入 `localStorage`；后端 API 没有身份验证。它不构成访问控制，不能用于公开互联网或存放敏感资料的部署。阶段 5 的安全方案需先由维护者选择后再实施。
 
-4. 在GitHub仓库设置中启用GitHub Pages
+## 常见问题排查
 
-#### 后端部署到 Heroku
+### 端口被占用
 
-1. 创建Heroku应用
-```bash
-heroku create your-app-name
-```
+启动日志会提示冲突端口。关闭占用进程，或通过 `PORT=3001 npm start`（PowerShell：`$env:PORT=3001; npm start`；CMD：`set PORT=3001 && npm start`）更换端口。
 
-2. 推送代码
-```bash
-git push heroku main
-```
+### 页面打不开或没有数据
 
-3. 后端服务将运行在 https://your-app-name.herokuapp.com
+确认服务进程仍运行，并检查 `http://localhost:3000/health`。页面打开后查看浏览器控制台打印的 API 地址；局域网/WSL 访问应指向页面同源地址，而不是旧的线上服务。跨设备访问还需检查防火墙和端口转发。
 
-### 方案二：Railway部署（推荐）
+### Windows 脚本乱码或被阻止
 
-1. 登录Railway并创建新项目
-2. 连接GitHub仓库
-3. 选择项目并部署
-4. 获取部署后的URL
+启动脚本提示使用英文。若 PowerShell 报执行策略错误，请按上文使用 `-ExecutionPolicy Bypass` 临时运行；不要为此修改全局执行策略。
 
-### 方案三：Vercel部署
+### CDN 加载失败或 Excel 导出不可用
 
-1. 登录Vercel并导入GitHub仓库
-2. 配置环境变量（如果需要）
-3. 自动部署
+应用使用本地 `vendor/xlsx.full.min.js`，CDN 仅作备用。确认从服务访问 `/vendor/xlsx.full.min.js` 返回 200；若该文件和 CDN 都不可用，Excel 导出会提示，CSV 导出仍可使用。
 
-## 配置生产环境 API 地址
+### 登录账号
 
-通过 HTTP/HTTPS 访问时，前端默认请求当前页面的同源后端；使用 `file:` 打开页面时请求 `http://localhost:3000`。仅 GitHub Pages 使用单独的后端地址，部署前在 `config.js` 顶部修改 `GITHUB_PAGES_API_BASE_URL`，并确保后端 CORS 白名单包含 GitHub Pages 的来源。
+默认演示账号为 `admin` / `admin123`。这是前端硬编码的演示校验，不是后端认证，也不能保护 API。
 
-## API接口文档
+### 部署后数据消失
 
-### 获取礼金记录列表
-- **URL**: `GET /api/gifts`
-- **响应**: 礼金记录列表
+`data.json` 和 `backups/` 是运行目录的本地文件。许多云平台的实例磁盘并不持久；部署前应确认使用持久化磁盘，或定期导出并妥善保存备份。
 
-### 添加礼金记录
-- **URL**: `POST /api/gifts`
-- **请求体**: `{"name": "姓名", "amount": 金额, "blessing": "祝福语"}`
+## 部署副本说明
 
-### 更新礼金记录
-- **URL**: `PUT /api/gifts/{id}`
-- **请求体**: `{"name": "姓名", "amount": 金额, "blessing": "祝福语"}`
-
-### 删除礼金记录
-- **URL**: `DELETE /api/gifts/{id}`
-
-### 获取统计数据
-- **URL**: `GET /api/gifts/stats`
-
-### 获取备份列表
-- **URL**: `GET /api/gifts/backups`
-
-### 创建备份
-- **URL**: `POST /api/gifts/backups`
-
-### 恢复备份
-- **URL**: `POST /api/gifts/backups/restore`
-- **请求体**: `{"filename": "backup_xxx.json"}`
-
-## 项目结构
-
-```
-wedding-gift-book/
-├── index.html              # 前端主页面
-├── login.html              # 登录页面
-├── server.js               # 后端服务器
-├── package.json            # 项目配置
-├── .gitignore             # Git忽略文件
-├── README.md              # 项目说明
-├── 操作说明.md            # 操作说明文档
-├── config/
-│   └── database.js        # 数据库配置
-├── models/
-│   └── Gift.js            # 数据模型
-├── routes/
-│   └── giftRoutes.js      # API路由
-└── backups/               # 备份文件目录
-```
-
-## 注意事项
-
-1. **数据安全**: 已添加用户认证机制，默认凭据为 admin/admin123
-2. **数据备份**: 定期备份data.json文件
-3. **CORS配置**: 生产环境需要配置正确的CORS域名
-4. **环境变量**: 敏感信息使用环境变量存储
-5. **主题设置**: 支持多种主题，用户可以自由切换
-
-## 许可证
-
-MIT License
+`deploy-package/` 是为旧的 Heroku 部署方式保留的 API-only 部署副本及元数据（`Procfile`、`app.json`），不是主应用源码目录。新部署请以仓库根目录为唯一维护源；副本的端口和 CORS 已与根目录对齐，但该副本不托管完整前端。建议后续确认旧部署已迁移后再删除整个副本。

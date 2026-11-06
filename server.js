@@ -18,28 +18,22 @@ const frontendFiles = new Set([
 // CORS配置
 const corsOptions = {
   origin: function (origin, callback) {
-    // 允许的开发环境
-    const allowedOrigins = [
+    const allowedOrigins = new Set([
       'http://localhost:3000',
       'http://127.0.0.1:3000',
       'http://localhost:5500',
       'http://127.0.0.1:5500',
-      // GitHub Pages域名（替换为你的实际域名）
-      'https://github.com/chengnanjia/gift_system',
-      // 其他生产环境域名
-      'https://github.github.io/chengnanjia/gift_system',
-      // Railway部署域名
-      'https://web-production-aebaa.up.railway.app'
-    ];
+      'https://chengnanjia.github.io'
+    ]);
     
     // 开发环境允许所有来源
     if (NODE_ENV === 'development' || !origin) {
       callback(null, true);
-    } else if (allowedOrigins.indexOf(origin) !== -1) {
+    } else if (allowedOrigins.has(origin)) {
       callback(null, true);
     } else {
-      console.log('CORS阻止的请求来源:', origin);
-      callback(new Error('不允许的来源'));
+      console.error(`[CORS] 拒绝跨域请求 Origin=${origin}。请检查 server.js 中的 allowedOrigins。`);
+      callback(new Error(`CORS 拒绝来源: ${origin}`));
     }
   },
   credentials: true,

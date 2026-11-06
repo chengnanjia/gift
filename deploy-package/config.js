@@ -1,26 +1,17 @@
-// 配置文件
-const config = {
-  // 开发环境
-  development: {
-    API_URL: 'http://localhost:3000/api/gifts',
-    API_BASE_URL: 'http://localhost:3000'
-  },
-  
-  // 生产环境（部署后需要修改这里）
-  production: {
-    // 替换为你的后端服务地址
-    API_URL: 'https://your-backend-url.com/api/gifts',
-    API_BASE_URL: 'https://your-backend-url.com'
-  }
+// GitHub Pages 部署时，请改为你自己的后端 HTTPS 地址。
+const GITHUB_PAGES_API_BASE_URL = 'https://web-production-aebaa.up.railway.app';
+const FILE_PROTOCOL_API_BASE_URL = 'http://localhost:3000';
+
+const isGitHubPages = window.location.hostname === 'github.io' ||
+                      window.location.hostname.endsWith('.github.io');
+const API_BASE_URL = isGitHubPages
+  ? GITHUB_PAGES_API_BASE_URL
+  : window.location.protocol === 'file:'
+    ? FILE_PROTOCOL_API_BASE_URL
+    : window.location.origin;
+
+window.appConfig = {
+  API_BASE_URL,
+  API_URL: `${API_BASE_URL}/api/gifts`
 };
-
-// 自动检测环境
-const ENV = window.location.hostname === 'localhost' || 
-            window.location.hostname === '127.0.0.1' ||
-            window.location.protocol === 'file:'
-            ? 'development' 
-            : 'production';
-
-// 导出配置
-window.appConfig = config[ENV];
-window.ENV = ENV;
+window.ENV = isGitHubPages ? 'production' : 'development';
