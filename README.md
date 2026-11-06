@@ -138,17 +138,9 @@ git push heroku main
 2. 配置环境变量（如果需要）
 3. 自动部署
 
-## 配置生产环境API地址
+## 配置生产环境 API 地址
 
-修改 `index.html` 中的API地址：
-
-```javascript
-// 开发环境
-const API_URL = 'http://localhost:3000/api/gifts';
-
-// 生产环境（替换为你的后端地址）
-const API_URL = 'https://your-backend-url.com/api/gifts';
-```
+通过 HTTP/HTTPS 访问时，前端默认请求当前页面的同源后端；使用 `file:` 打开页面时请求 `http://localhost:3000`。仅 GitHub Pages 使用单独的后端地址，部署前在 `config.js` 顶部修改 `GITHUB_PAGES_API_BASE_URL`，并确保后端 CORS 白名单包含 GitHub Pages 的来源。
 
 ## API接口文档
 

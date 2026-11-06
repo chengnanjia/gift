@@ -872,6 +872,11 @@
         // 在控制台显示当前环境
         console.log('当前环境:', window.ENV || 'development');
         console.log('API地址:', API_URL);
+
+        function showApiConnectionError(operation, url, error) {
+            console.error(`${operation}失败:`, error);
+            showToast(`${operation}失败，无法连接后端：${url}。请确认后端已启动，并检查地址、端口、网络或防火墙设置。`, 'error');
+        }
         
         // 加载动画控制
         function showLoading() {
@@ -1115,9 +1120,9 @@
                     gifts = JSON.parse(cachedData);
                     updateStats();
                     renderTable();
-                    showToast('网络错误，使用缓存数据', 'warning');
+                    showToast(`无法连接后端：${API_URL}。当前显示本地缓存，请确认后端已启动并检查网络。`, 'warning');
                 } else {
-                    showToast('加载数据失败，请检查网络连接和后端服务', 'error');
+                    showApiConnectionError('加载礼金记录', API_URL, error);
                 }
             } finally {
                 hideLoading();
@@ -1475,8 +1480,7 @@
                     showToast('添加失败: ' + data.message, 'error');
                 }
             } catch (error) {
-                console.error('添加礼金记录失败:', error);
-                showToast('添加失败，请检查后端服务是否运行', 'error');
+                showApiConnectionError('添加礼金记录', API_URL, error);
             } finally {
                 hideLoading();
             }
@@ -1534,8 +1538,7 @@
                     showToast('更新失败: ' + data.message, 'error');
                 }
             } catch (error) {
-                console.error('更新礼金记录失败:', error);
-                showToast('更新失败，请检查后端服务是否运行', 'error');
+                showApiConnectionError('更新礼金记录', `${API_URL}/${id}`, error);
             } finally {
                 hideLoading();
             }
@@ -1557,8 +1560,7 @@
                         showToast('删除失败: ' + data.message, 'error');
                     }
                 } catch (error) {
-                    console.error('删除礼金记录失败:', error);
-                    showToast('删除失败，请检查后端服务是否运行', 'error');
+                    showApiConnectionError('删除礼金记录', `${API_URL}/${id}`, error);
                 } finally {
                     hideLoading();
                 }
@@ -1668,7 +1670,7 @@
                     renderBackupList(data.data);
                 }
             } catch (error) {
-                console.error('加载备份列表失败:', error);
+                showApiConnectionError('加载备份列表', `${API_BASE_URL}/api/gifts/backups`, error);
             }
         }
         
@@ -1719,8 +1721,7 @@
                     showToast('备份创建失败: ' + data.message, 'error');
                 }
             } catch (error) {
-                console.error('创建备份失败:', error);
-                showToast('创建备份失败', 'error');
+                showApiConnectionError('创建备份', `${API_BASE_URL}/api/gifts/backups`, error);
             } finally {
                 hideLoading();
             }
@@ -1749,8 +1750,7 @@
                     showToast('数据恢复失败: ' + data.message, 'error');
                 }
             } catch (error) {
-                console.error('恢复备份失败:', error);
-                showToast('恢复备份失败', 'error');
+                showApiConnectionError('恢复备份', `${API_BASE_URL}/api/gifts/backups/restore`, error);
             } finally {
                 hideLoading();
             }

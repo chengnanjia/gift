@@ -32,13 +32,8 @@
 ### 第二步：修改前端配置
 
 1. **编辑 `config.js` 文件**
-   ```javascript
-   production: {
-       // 替换为你的Heroku应用地址
-       API_URL: 'https://your-wedding-gift-app.herokuapp.com/api/gifts',
-       API_BASE_URL: 'https://your-wedding-gift-app.herokuapp.com'
-   }
-   ```
+   - 将顶部的 `GITHUB_PAGES_API_BASE_URL` 改为你的后端 HTTPS 根地址（不要附加 `/api/gifts`）。
+   - 普通 HTTP/HTTPS 部署会自动使用当前页面的 `origin`；只有 `*.github.io` 页面使用该独立后端地址。
 
 2. **提交修改**
    ```bash
@@ -86,7 +81,7 @@
    - 获取部署后的URL（如：`https://wedding-gift-app.up.railway.app`）
 
 4. **更新前端配置**
-   - 修改 `config.js` 中的生产环境API地址
+   - 修改 `config.js` 中的 `GITHUB_PAGES_API_BASE_URL`
    - 重新部署前端到GitHub Pages
 
 ## 方案三：Vercel部署
