@@ -1,9 +1,26 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
-const path = require('path');
 const os = require('os');
 const giftRoutes = require('./routes/giftRoutes');
+const {
+  constantTimeEqual,
+  issueToken,
+  loadAuthConfig,
+  requireAuth,
+  TOKEN_TTL_SECONDS
+} = require('./auth');
+
+let authConfig;
+try {
+  authConfig = loadAuthConfig();
+} catch (error) {
+  console.error(`[配置错误] ${error.message}。请复制 .env.example 为 .env 并设置强密码和签名密钥。`);
+  process.exit(1);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -48,7 +65,29 @@ app.use(express.urlencoded({ extended: true }));
 
 // 静态文件服务
 // 路由
-app.use('/api/gifts', giftRoutes);
+app.post('/api/auth/login', (req, res) => {
+  const { username, password } = req.body || {};
+  if (!constantTimeEqual(username, authConfig.username) ||
+      !constantTimeEqual(password, authConfig.password)) {
+    return res.status(401).json({
+      code: 401,
+      data: null,
+      message: '用户名或密码错误'
+    });
+  }
+
+  return res.json({
+    code: 200,
+    data: {
+      username: authConfig.username,
+      token: issueToken(authConfig.username, authConfig.tokenSecret),
+      expiresIn: TOKEN_TTL_SECONDS
+    },
+    message: 'success'
+  });
+});
+
+app.use('/api/gifts', requireAuth(authConfig), giftRoutes);
 
 // 仅提供前端入口和运行配置，避免将数据、备份及服务端源码作为静态文件公开。
 app.get('/', (req, res) => {

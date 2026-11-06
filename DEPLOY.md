@@ -4,7 +4,9 @@
 
 - Node.js 运行环境需为 18 或更高版本。云平台通常会提供 `PORT` 环境变量，服务会优先使用它，否则默认监听 3000。
 - `data.json` 和 `backups/` 是本地文件。请确认部署平台提供持久化磁盘，并定期备份；容器或临时实例的本地文件可能在重启、重新部署后丢失。
-- 当前登录仅在浏览器端校验，API 无鉴权。不要将此服务作为公开互联网的安全礼金系统使用，除非另行实现后端认证。
+- 必须在平台环境变量中配置 `AUTH_USERNAME`、至少 12 字符的 `AUTH_PASSWORD` 和至少 32 字节的随机 `AUTH_TOKEN_SECRET`。不要将凭据写入代码或仓库文件。
+- `.env.example` 中是无效占位值，不能直接作为真实配置使用；服务检测到占位值会拒绝启动。
+- 登录签发 8 小时 Bearer 令牌；所有礼金和备份 API 都受保护。生产环境必须启用 HTTPS。
 
 ## 单域名部署
 
@@ -20,10 +22,11 @@ npm start
 ## GitHub Pages 前端 + 独立后端
 
 1. 将后端部署到支持 Node.js 的服务，确认 `https://<后端域名>/health` 可访问，并配置持久化数据存储。
-2. 在根目录 `config.js` 中，将顶部 `GITHUB_PAGES_API_BASE_URL` 改为后端 HTTPS 根地址（不要附加 `/api/gifts`）。
-3. 后端 `server.js` 的 `allowedOrigins` 需要包含 GitHub Pages 的纯 origin。默认配置包含 `https://chengnanjia.github.io`；自定义域名也必须单独加入。
-4. 将前端文件部署至 `https://chengnanjia.github.io/<仓库名>/`。应用会将该域名识别为 GitHub Pages 并使用单独的 API 地址。
-5. 打开浏览器开发者工具确认控制台打印的 API 地址正确，并验证查询和写入操作。
+2. 在后端平台配置 `AUTH_USERNAME`、`AUTH_PASSWORD` 和 `AUTH_TOKEN_SECRET` 环境变量。
+3. 在根目录 `config.js` 中，将顶部 `GITHUB_PAGES_API_BASE_URL` 改为后端 HTTPS 根地址（不要附加 `/api/gifts`）。
+4. 后端 `server.js` 的 `allowedOrigins` 需要包含 GitHub Pages 的纯 origin。默认配置包含 `https://chengnanjia.github.io`；自定义域名也必须单独加入。
+5. 将前端文件部署至 `https://chengnanjia.github.io/<仓库名>/`。应用会将该域名识别为 GitHub Pages 并使用单独的 API 地址。
+6. 打开浏览器开发者工具确认控制台打印的 API 地址正确，并验证登录、查询和写入操作。
 
 通过普通 HTTP/HTTPS 域名或 LAN IP 打开页面时，配置默认请求 `window.location.origin`，无需手工拼接路径。直接以 `file:` 打开时则请求本机 `http://localhost:3000`。
 
@@ -65,7 +68,7 @@ Excel 使用本地 `vendor/xlsx.full.min.js`，CDN 仅在本地脚本不可用�
 
 ### 登录账号或安全
 
-演示账号为 `admin` / `admin123`，在前端代码中固定校验；后端 API 没有鉴权。请勿将该登录页面视为安全边界。
+使用平台环境变量中配置的账号密码。服务缺少认证环境变量时会拒绝启动；请确认令牌密钥长度至少 32 字节。不要将密钥放入 GitHub Pages 的前端配置。
 
 ### 云部署后数据丢失
 

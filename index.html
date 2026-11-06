@@ -889,6 +889,24 @@
             console.error(`${operation}失败:`, error);
             showToast(`${operation}失败，无法连接后端：${url}。请确认后端已启动，并检查地址、端口、网络或防火墙设置。`, 'error');
         }
+
+        async function apiFetch(url, options = {}) {
+            const headers = new Headers(options.headers || {});
+            const token = sessionStorage.getItem('authToken');
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+
+            const response = await fetch(url, { ...options, headers });
+            if (response.status === 401) {
+                sessionStorage.removeItem('authToken');
+                sessionStorage.removeItem('giftsCache');
+                localStorage.removeItem('user');
+                localStorage.removeItem('giftsCache');
+                window.location.replace('login.html');
+            }
+            return response;
+        }
         
         // 加载动画控制
         function showLoading() {
@@ -954,7 +972,11 @@
         // 检查登录状态
         function checkLoginStatus() {
             const user = localStorage.getItem('user');
-            if (!user) {
+            const token = sessionStorage.getItem('authToken');
+            if (!user || !token) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('giftsCache');
+                sessionStorage.removeItem('giftsCache');
                 // 未登录，重定向到登录页面
                 window.location.href = 'login.html';
                 return false;
@@ -1044,6 +1066,9 @@
         function logout() {
             if (confirm('确定要登出吗？')) {
                 localStorage.removeItem('user');
+                localStorage.removeItem('giftsCache');
+                sessionStorage.removeItem('authToken');
+                sessionStorage.removeItem('giftsCache');
                 window.location.href = 'login.html';
             }
         }
@@ -1106,7 +1131,7 @@
             isLoading = true;
             
             try {
-                const response = await fetch(API_URL);
+                const response = await apiFetch(API_URL);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -1116,7 +1141,7 @@
                 
                 if (data.code === 200) {
                     // 缓存数据到本地存储，减少重复请求
-                    localStorage.setItem('giftsCache', JSON.stringify(data.data));
+                    sessionStorage.setItem('giftsCache', JSON.stringify(data.data));
                     gifts = data.data;
                     updateStats();
                     renderTable();
@@ -1127,7 +1152,7 @@
                 console.error('加载礼金记录失败:', error);
                 
                 // 尝试从缓存加载数据
-                const cachedData = localStorage.getItem('giftsCache');
+                const cachedData = sessionStorage.getItem('giftsCache');
                 if (cachedData) {
                     gifts = JSON.parse(cachedData);
                     updateStats();
@@ -1476,7 +1501,7 @@
             
             showLoading();
             try {
-                const response = await fetch(API_URL, {
+                const response = await apiFetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1534,7 +1559,7 @@
             
             showLoading();
             try {
-                const response = await fetch(`${API_URL}/${id}`, {
+                const response = await apiFetch(`${API_URL}/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1561,7 +1586,7 @@
             if (confirm('确定要删除这条记录吗？')) {
                 showLoading();
                 try {
-                    const response = await fetch(`${API_URL}/${id}`, {
+                    const response = await apiFetch(`${API_URL}/${id}`, {
                         method: 'DELETE'
                     });
                     const data = await response.json();
@@ -1680,7 +1705,7 @@
         // 加载备份列表
         async function loadBackups() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/gifts/backups`);
+                const response = await apiFetch(`${API_BASE_URL}/api/gifts/backups`);
                 const data = await response.json();
                 if (data.code === 200) {
                     renderBackupList(data.data);
@@ -1726,7 +1751,7 @@
         async function createBackup() {
             showLoading();
             try {
-                const response = await fetch(`${API_BASE_URL}/api/gifts/backups`, {
+                const response = await apiFetch(`${API_BASE_URL}/api/gifts/backups`, {
                     method: 'POST'
                 });
                 const data = await response.json();
@@ -1751,7 +1776,7 @@
 
             showLoading();
             try {
-                const response = await fetch(`${API_BASE_URL}/api/gifts/backups/restore`, {
+                const response = await apiFetch(`${API_BASE_URL}/api/gifts/backups/restore`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

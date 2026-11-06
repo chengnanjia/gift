@@ -11,8 +11,12 @@
 
 ```bash
 npm install
+cp .env.example .env
+# 编辑 .env，设置唯一强密码和随机签名密钥
 npm start
 ```
+
+Windows PowerShell 可先运行 `Copy-Item .env.example .env`。`AUTH_PASSWORD` 至少 12 个字符，`AUTH_TOKEN_SECRET` 至少 32 字节。可用 `openssl rand -hex 32` 生成签名密钥；必须替换示例占位值。服务缺少配置或检测到占位值时会拒绝启动；`.env` 已被 Git 忽略，不要提交实际凭据。
 
 默认访问 `http://localhost:3000/login.html`。也可以直接打开 `http://localhost:3000/` 进入主页面。服务会打印监听地址和项目目录下的数据文件路径。
 
@@ -60,19 +64,26 @@ powershell -ExecutionPolicy Bypass -File .\start.ps1
 | 方法 | 路径 | 用途 |
 |---|---|---|
 | GET | `/health` | 健康检查 |
-| GET | `/api/gifts` | 获取记录 |
-| POST | `/api/gifts` | 新增记录 |
-| PUT | `/api/gifts/:id` | 更新记录 |
-| DELETE | `/api/gifts/:id` | 删除记录 |
-| GET | `/api/gifts/stats` | 统计数据 |
-| GET/POST | `/api/gifts/backups` | 查询/创建备份 |
-| POST | `/api/gifts/backups/restore` | 恢复备份 |
+| POST | `/api/auth/login` | 校验环境变量凭据并签发 8 小时 Bearer 令牌 |
+| GET | `/api/gifts` | 获取记录（需令牌） |
+| POST | `/api/gifts` | 新增记录（需令牌） |
+| PUT | `/api/gifts/:id` | 更新记录（需令牌） |
+| DELETE | `/api/gifts/:id` | 删除记录（需令牌） |
+| GET | `/api/gifts/stats` | 统计数据（需令牌） |
+| GET/POST | `/api/gifts/backups` | 查询/创建备份（需令牌） |
+| POST | `/api/gifts/backups/restore` | 恢复备份（需令牌） |
 
 生产环境的跨域白名单位于 `server.js` 的 `allowedOrigins`。条目必须是纯 origin（协议、主机和可选端口，不带路径）；自定义前端域名需将其 origin 加入白名单。
 
 ## 登录与安全边界
 
-登录页目前仅在浏览器端校验固定的 `admin` / `admin123`，登录状态写入 `localStorage`；后端 API 没有身份验证。它不构成访问控制，不能用于公开互联网或存放敏感资料的部署。阶段 5 的安全方案需先由维护者选择后再实施。
+登录凭据由 `AUTH_USERNAME` 和 `AUTH_PASSWORD` 配置。后端用 HMAC-SHA256 签发 8 小时令牌，所有礼金和备份 API 都要求 `Authorization: Bearer ...`；令牌仅保存在当前标签页的 `sessionStorage`，登出或认证失效时清除令牌与会话缓存。健康检查和登录接口保持公开。
+
+生产部署必须通过平台环境变量安全配置凭据与随机 `AUTH_TOKEN_SECRET`，并启用 HTTPS。令牌在服务端无状态验证，登出会清理当前浏览器会话，但已复制的令牌直到过期仍有效。不要在仓库中提交 `.env`、真实密码或令牌。
+
+本系统使用 dotenv 16.4.7（BSD-2-Clause）加载本地 `.env`。它仍是单账户 JSON 文件应用；公开部署前应额外考虑登录限流、数据持久化和备份保护。
+
+运行认证单元测试：`npm test`。
 
 ## 常见问题排查
 
@@ -94,7 +105,7 @@ powershell -ExecutionPolicy Bypass -File .\start.ps1
 
 ### 登录账号
 
-默认演示账号为 `admin` / `admin123`。这是前端硬编码的演示校验，不是后端认证，也不能保护 API。
+用户名、密码从 `.env` 中的 `AUTH_USERNAME` 和 `AUTH_PASSWORD` 读取。若服务无法启动，检查这三个认证环境变量是否存在、密码是否至少 12 个字符、签名密钥是否至少 32 字节。
 
 ### 部署后数据消失
 

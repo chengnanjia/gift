@@ -190,7 +190,10 @@
         </div>
     </div>
     
+    <script src="config.js"></script>
     <script>
+        const API_BASE_URL = window.appConfig ? window.appConfig.API_BASE_URL : 'http://localhost:3000';
+
         // 加载动画控制
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('show');
@@ -220,8 +223,8 @@
             });
         }
         
-        // 登录表单提交
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // 凭据只发送给后端验证；令牌仅保存在当前浏览器会话中。
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             clearErrors();
             
@@ -239,21 +242,33 @@
                 return;
             }
             
+            const loginUrl = `${API_BASE_URL}/api/auth/login`;
+            const submitButton = document.querySelector('#loginForm button[type="submit"]');
+            submitButton.disabled = true;
             showLoading();
-            
-            // 模拟登录验证（实际项目中应该调用后端API）
-            setTimeout(() => {
-                // 简单的硬编码验证
-                if (username === 'admin' && password === 'admin123') {
-                    // 保存登录状态到本地存储
-                    localStorage.setItem('user', JSON.stringify({ username: 'admin' }));
-                    // 跳转到主页面
-                    window.location.href = 'index.html';
-                } else {
-                    showError('password', '用户名或密码错误');
-                    hideLoading();
+
+            try {
+                const response = await fetch(loginUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json().catch(() => null);
+                if (!response.ok || !result || result.code !== 200) {
+                    showError('password', result?.message || `登录失败（HTTP ${response.status}）`);
+                    return;
                 }
-            }, 1000);
+
+                sessionStorage.setItem('authToken', result.data.token);
+                localStorage.setItem('user', JSON.stringify({ username: result.data.username }));
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('登录请求失败:', error);
+                showError('password', `无法连接后端：${loginUrl}。请确认后端已启动并检查网络。`);
+            } finally {
+                hideLoading();
+                submitButton.disabled = false;
+            }
         });
     </script>
 </body>

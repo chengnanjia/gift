@@ -1,7 +1,24 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const giftRoutes = require('./routes/giftRoutes');
+const {
+  constantTimeEqual,
+  issueToken,
+  loadAuthConfig,
+  requireAuth,
+  TOKEN_TTL_SECONDS
+} = require('./auth');
+
+let authConfig;
+try {
+  authConfig = loadAuthConfig();
+} catch (error) {
+  console.error(`[配置错误] ${error.message}。请设置 AUTH_USERNAME、AUTH_PASSWORD 和 AUTH_TOKEN_SECRET。`);
+  process.exit(1);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -40,7 +57,29 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 路由
-app.use('/api/gifts', giftRoutes);
+app.post('/api/auth/login', (req, res) => {
+  const { username, password } = req.body || {};
+  if (!constantTimeEqual(username, authConfig.username) ||
+      !constantTimeEqual(password, authConfig.password)) {
+    return res.status(401).json({
+      code: 401,
+      data: null,
+      message: '用户名或密码错误'
+    });
+  }
+
+  return res.json({
+    code: 200,
+    data: {
+      username: authConfig.username,
+      token: issueToken(authConfig.username, authConfig.tokenSecret),
+      expiresIn: TOKEN_TTL_SECONDS
+    },
+    message: 'success'
+  });
+});
+
+app.use('/api/gifts', requireAuth(authConfig), giftRoutes);
 
 // 根路由
 app.get('/', (req, res) => {
