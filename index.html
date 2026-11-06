@@ -879,7 +879,7 @@
         
         // 使用配置文件中的API地址
         const API_URL = window.appConfig ? window.appConfig.API_URL : 'http://localhost:3000/api/gifts';
-        const API_BASE_URL = window.appConfig ? window.appConfig.API_BASE_URL : 'http://localhost:3000';
+        const APP_API_BASE_URL = window.appConfig ? window.appConfig.API_BASE_URL : 'http://localhost:3000';
         
         // 在控制台显示当前环境
         console.log('当前环境:', window.ENV || 'development');
@@ -1705,13 +1705,13 @@
         // 加载备份列表
         async function loadBackups() {
             try {
-                const response = await apiFetch(`${API_BASE_URL}/api/gifts/backups`);
+                const response = await apiFetch(`${APP_API_BASE_URL}/api/gifts/backups`);
                 const data = await response.json();
                 if (data.code === 200) {
                     renderBackupList(data.data);
                 }
             } catch (error) {
-                showApiConnectionError('加载备份列表', `${API_BASE_URL}/api/gifts/backups`, error);
+                showApiConnectionError('加载备份列表', `${APP_API_BASE_URL}/api/gifts/backups`, error);
             }
         }
         
@@ -1751,7 +1751,7 @@
         async function createBackup() {
             showLoading();
             try {
-                const response = await apiFetch(`${API_BASE_URL}/api/gifts/backups`, {
+                const response = await apiFetch(`${APP_API_BASE_URL}/api/gifts/backups`, {
                     method: 'POST'
                 });
                 const data = await response.json();
@@ -1762,7 +1762,7 @@
                     showToast('备份创建失败: ' + data.message, 'error');
                 }
             } catch (error) {
-                showApiConnectionError('创建备份', `${API_BASE_URL}/api/gifts/backups`, error);
+                showApiConnectionError('创建备份', `${APP_API_BASE_URL}/api/gifts/backups`, error);
             } finally {
                 hideLoading();
             }
@@ -1776,7 +1776,7 @@
 
             showLoading();
             try {
-                const response = await apiFetch(`${API_BASE_URL}/api/gifts/backups/restore`, {
+                const response = await apiFetch(`${APP_API_BASE_URL}/api/gifts/backups/restore`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1791,7 +1791,7 @@
                     showToast('数据恢复失败: ' + data.message, 'error');
                 }
             } catch (error) {
-                showApiConnectionError('恢复备份', `${API_BASE_URL}/api/gifts/backups/restore`, error);
+                showApiConnectionError('恢复备份', `${APP_API_BASE_URL}/api/gifts/backups/restore`, error);
             } finally {
                 hideLoading();
             }
